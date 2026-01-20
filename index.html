@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Énigme 1 : La Boîte Pro Saturée</title>
+    <style>
+        /* --- DESIGN (CSS) --- */
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --danger: #e74c3c;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+            /* Image de fond Coworking avec un filtre sombre par-dessus */
+            background: linear-gradient(rgba(44, 62, 80, 0.85), rgba(44, 62, 80, 0.85)), 
+                        url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--bg);
+        }
+
+        .game-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95); /* Fond blanc légèrement transparent */
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            color: var(--primary);
+        }
+
+        h1 { margin-top: 0; color: var(--primary); font-size: 2rem; }
+        .instruction { color: #555; font-size: 1.1rem; }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden; /* Pour que l'image suive les bords arrondis */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid transparent;
+            color: var(--primary);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Nouvelle classe pour l'image de la carte */
+        .card-image {
+            width: 100%;
+            height: 140px;
+            object-fit: cover; /* L'image remplit la zone sans être déformée */
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-id {
+            font-weight: bold;
+            font-size: 1.4rem;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .card h3 { margin: 0 0 10px 0; font-size: 1.2rem; }
+        .card p { font-size: 0.95rem; flex-grow: 1; color: #666; }
+
+        .rank-selector {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #eee;
+            font-weight: bold;
+            cursor: pointer;
+            background: #fafafa;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .rank-selector:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+        }
+
+        .validation-zone {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            bottom: 20px;
+            border: 1px solid #eee;
+            color: var(--primary);
+        }
+
+        .code-display {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--primary);
+            background: #eee;
+            display: inline-block;
+            padding: 5px 20px;
+            border-radius: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #219150;
+            transform: scale(1.05);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            min-height: 24px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
+        .error { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <header>
+        <h1>🔐 Énigme 1 : La Boîte Pro Saturée</h1>
+        <p class="instruction">La messagerie sature ! Analysez les 6 situations ci-dessous et classez-les de la <strong>moins polluante (1)</strong> à la <strong>plus polluante (6)</strong> pour obtenir le code de déverrouillage.</p>
+    </header>
+
+    <div class="cards-grid" id="cardsGrid">
+        </div>
+
+    <div class="validation-zone">
+        <div>Votre code de déverrouillage :</div>
+        <div class="code-display" id="codeContainer">
+            <span id="finalCode">_ _ _ _ _ _</span>
+        </div>
+        <br>
+        <button id="checkBtn" class="btn-primary">Saisir le code</button>
+        <div id="feedback" class="feedback" style="display: none;"></div>
+    </div>
+</div>
+
+<script>
+    /* --- LOGIQUE (JAVASCRIPT) --- */
+
+    // J'utilise des images d'Unsplash pour l'exemple. Pour un vrai projet, hébergez-les vous-même.
+    const cardsData = [
+        { 
+            id: 'A', 
+            title: 'Le PDF surdimensionné', 
+            imgUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60', // Image: Gros fichier/Data
+            desc: 'Un rapport de 18 Mo avec images HD envoyé à 60 personnes, alors que seules 8 sont concernées.' 
+        },
+        { 
+            id: 'B', 
+            title: 'La boucle de remerciements', 
+            imgUrl: 'https://images.unsplash.com/photo-1577563908411-5077b6dc7624?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60', // Image: Discussion de groupe/Réseau
+            desc: '12 mails successifs de type “Merci”, “OK”, “Vu”, envoyés en copie à toute une liste de diffusion.' 
+        },
+        { 
+            id: 'C', 
+            title: 'L’archivage sans fin', 
+            imgUrl: 'https://images.unsplash.com/photo-1461344577544-4e5dc9487184?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60', // Image: Serveur/Stockage antique
+            desc: 'Plus de 50 000 messages conservés depuis 2014 dans la boîte mail, sans aucun tri ni suppression.' 
+        },
+        { 
+            id: 'D', 
+            title: 'Le transfert inutile', 
+            imgUrl: 'https://images.unsplash.com/photo-1555421689-491a97ff2040?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60', // Image: Transfert de fichiers
+            desc: 'Transfert d\'un mail avec 5 pièces jointes lourdes à 3 collègues, au lieu d\'utiliser un lien de partage.' 
+        },
+        { 
+            id: 'E', 
+            title: 'La pièce jointe en double', 
+            imgUrl: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60', // Image: Doublon/Copie
+            desc: 'Envoi d\'un document en pièce jointe ET collé directement dans le corps du mail par "sécurité".' 
+        },
+        { 
+            id: 'F', 
+            title: 'La newsletter interne ignorée', 
+            imgUrl: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60', // Image: Spam/Courrier ignoré
+            desc: 'Newsletter hebdomadaire de 6 Mo envoyée à 300 employés, dont la grande majorité ne l’ouvre jamais.' 
+        }
+    ];
+
+    // Code pédagogique corrigé : A(6), B(1), C(5), D(3), E(2), F(4)
+    // Ordre final A-B-C-D-E-F
+    const CORRECT_CODE = "615324"; 
+
+    const cardsGrid = document.getElementById('cardsGrid');
+    const finalCodeDisplay = document.getElementById('finalCode');
+    const checkBtn = document.getElementById('checkBtn');
+    const feedback = document.getElementById('feedback');
+
+    // Initialisation des cartes avec images
+    function initGame() {
+        cardsData.forEach(card => {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'card';
+            // Structure HTML mise à jour pour inclure l'image
+            cardEl.innerHTML = `
+                <img src="${card.imgUrl}" alt="${card.title}" class="card-image">
+                <div class="card-content">
+                    <div class="card-id">Situation ${card.id}</div>
+                    <h3>${card.title}</h3>
+                    <p>${card.desc}</p>
+                    <select class="rank-selector" data-card="${card.id}">
+                        <option value="">-- Choisir le rang (1 à 6) --</option>
+                        <option value="1">1 (Impact Faible)</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6 (Impact Élevé)</option>
+                    </select>
+                </div>
+            `;
+            cardsGrid.appendChild(cardEl);
+        });
+    }
+
+    // Mise à jour de l'affichage du code
+    document.addEventListener('change', (e) => {
+        if(e.target.classList.contains('rank-selector')) {
+            updateCodeDisplay();
+            feedback.style.display = 'none'; // Cacher le feedback si on change un choix
+        }
+    });
+
+    function updateCodeDisplay() {
+        let currentCode = "";
+        ['A','B','C','D','E','F'].forEach(letter => {
+            const select = document.querySelector(`.rank-selector[data-card="${letter}"]`);
+            currentCode += select.value || "_";
+        });
+        finalCodeDisplay.innerText = currentCode.split('').join(' ');
+    }
+
+    // Vérification finale
+    checkBtn.addEventListener('click', () => {
+        let userCode = "";
+        let complete = true;
+        feedback.style.display = 'block';
+
+        ['A','B','C','D','E','F'].forEach(letter => {
+            const val = document.querySelector(`.rank-selector[data-card="${letter}"]`).value;
+            if(!val) complete = false;
+            userCode += val;
+        });
+
+        if (!complete) {
+            feedback.innerHTML = "⚠️ Attention : Vous devez classer les 6 situations avant de valider.";
+            feedback.className = "feedback error";
+            return;
+        }
+
+        if (userCode === CORRECT_CODE) {
+            feedback.innerHTML = "🎉 <strong>BRAVO ! Code correct.</strong><br>La messagerie est débloquée. Vous avez parfaitement identifié les pratiques les plus énergivores (gros volumes × nombre de destinataires).";
+            feedback.className = "feedback success";
+            checkBtn.disabled = true;
+            checkBtn.style.opacity = "0.5";
+            checkBtn.innerText = "Mission accomplie";
+            // Petit effet de scroll vers le feedback
+            feedback.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            feedback.innerHTML = "❌ <strong>Code incorrect.</strong><br>Indice : L'impact se calcule souvent ainsi : <em>Poids du mail × Nombre de destinataires × Durée de stockage</em>. Réessayez !";
+            feedback.className = "feedback error";
+        }
+    });
+
+    initGame();
+</script>
+
+</body>
+</html>
